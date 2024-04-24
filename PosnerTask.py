@@ -5,24 +5,84 @@
 import random
 from expyriment import design, control, stimuli
 
-N_TRIALS = 20  # nombre d'essai
-SQUARE_TIME_1 = 500 # temps de presentation des carres 1
-CUE_TIME = 100 # temps de presentation de l'indice
-SQUARE_TIME_1 = 100 # temps de presentation des carres 2
-TARGET_TIME = 150 # temps de presentation de la cible
+N_TRIALS = 20  # Nombre d'essai
+SQUARE_TIME_1 = 500 # Temps de presentation des carres 1
+CUE_TIME = 100 # Temps de presentation de l'indice
+SQUARE_TIME_1 = 100 # Temps de presentation des carres 2
+TARGET_TIME = 150 # Temps de presentation de la cible
 RESULT_FILE = 'reaction_times.csv'
+
+if(N_TRIALS%2 != 0):
+    raise Exception("Veuillez rentrer un nomre d'essai pair !")
 
 exp = design.Experiment(name="PosnerTask", text_size=20)
 #control.set_develop_mode(on=True)
 control.initialize(exp)
 
-RectangleLeft = stimuli.Rectangle((200, 200), colour=(250, 250, 250), line_width=5, position=(250, 0))
-RectangleRight = stimuli.Rectangle((200, 200), colour=(250, 250, 250), line_width=5, position=(-250, 0))
-RectangleBoldLeft = stimuli.Rectangle((200, 200), colour=(250, 250, 250), line_width=5, position=(250, 0))
-RectangleBoldRight = stimuli.Rectangle((200, 200), colour=(250, 250, 250), line_width=5, position=(-250, 0))
-Cross = stimuli.FixCross(size=(50, 50), line_width=5, colour=(0, 0, 0))
-Star = stimuli.Shape(position=None, colour=None, line_width=None, anti_aliasing=None, vertex_list=None, debug_contour_colour=None)
-Star.add_vertices([(10,0), (0, -0.2), (-10, 0.2), (8, -8), (-0.2, 0), (-7.8, 8), (0, -10), (-0.2, 0), (0.2, 10), (-8, 8), (0, -0.2), (8, 7.8), (-10,0), (0, 0.2), (10, -0.2), (-8, 8), (0.2, 0), (7.8, -8), (0, 10), (0.2, 0), (-0.2, -10), (8, -8), (0, -0.2), (-8, -7.8)])
+
+RectangleLeft      = stimuli.Rectangle((200, 200), colour=(250, 250, 250), line_width=3, position=(250, 0))
+RectangleRight     = stimuli.Rectangle((200, 200), colour=(250, 250, 250), line_width=3, position=(-250, 0))
+RectangleBoldLeft  = stimuli.Rectangle((200, 200), colour=(250, 250, 250), line_width=10, position=(250, 0))
+RectangleBoldRight = stimuli.Rectangle((200, 200), colour=(250, 250, 250), line_width=10, position=(-250, 0))
+
+StarLeft           = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250),position = (-250, 0))
+CrossRotate        = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250))
+CrossRotate.native_rotate(45.0)
+CrossRotate.plot(StarLeft)
+
+StarRight          = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250),position = (250, 0))
+CrossRotate        = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250))
+CrossRotate.native_rotate(45.0)
+CrossRotate.plot(StarRight)
+
+Cross = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250))
+
+# Creation de differents ecrans que je pourrais alterner dans une liste
+ScreenInit = stimuli.BlankScreen(colour = (0, 0, 0)) # Ecran initial
+Cross.plot(ScreenInit)
+RectangleLeft.plot(ScreenInit)
+RectangleRight.plot(ScreenInit)
+
+ScreenCueLeft = stimuli.BlankScreen(colour = (0, 0, 0)) # Ecran avec l'indice a gauche
+Cross.plot(ScreenCueLeft)
+RectangleBoldLeft.plot(ScreenCueLeft)
+RectangleRight.plot(ScreenCueLeft)
+
+ScreenCueRight = stimuli.BlankScreen(colour = (0, 0, 0)) # Ecran avec l'indice a droite
+Cross.plot(ScreenCueRight)
+RectangleBoldRight.plot(ScreenCueRight)
+RectangleLeft.plot(ScreenCueRight)
+
+ScreenTargetLeft = stimuli.BlankScreen(colour = (0, 0, 0)) # Ecran avec la cible a gauche
+RectangleRight.plot(ScreenTargetLeft)
+RectangleLeft.plot(ScreenTargetLeft)
+StarLeft.plot(ScreenTargetLeft)
+
+ScreenTargetRight = stimuli.BlankScreen(colour = (0, 0, 0)) # Ecran avec la cible a droite
+RectangleRight.plot(ScreenTargetRight)
+RectangleLeft.plot(ScreenTargetRight)
+StarRight.plot(ScreenTargetRight)
+
+ListCongruentLeft = []
+ListCongruentLeft.append(ScreenInit)
+ListCongruentLeft.append(ScreenCueLeft)
+ListCongruentLeft.append(ScreenTargetLeft)
+
+ListCongruentRight = []
+ListCongruentRight.append(ScreenInit)
+ListCongruentRight.append(ScreenCueRight)
+ListCongruentRight.append(ScreenTargetRight)
+
+ListIncongruentLeft = []
+ListIncongruentLeft.append(ScreenInit)
+ListIncongruentLeft.append(ScreenCueLeft)
+ListIncongruentLeft.append(ScreenTargetRight)
+
+ListCongruentRight = []
+ListCongruentRight.append(ScreenInit)
+ListCongruentRight.append(ScreenCueRight)
+ListCongruentRight.append(ScreenTargetLeft)
+
 
 def display_instruction(screen, x, y):
     myfont = pygame.font.SysFont(pygame.font.get_fonts()[0], 32)
