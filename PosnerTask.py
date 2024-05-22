@@ -1,96 +1,201 @@
 #! /usr/bin/env python
-# Time-stamp: <2021-03-23 22:02:10 christophe@pallier.org>
-# License: Creative Commons Attribution-ShareAlike CC BY-SA
-
 import random
-from expyriment import design, control, stimuli
+from expyriment import design, control, stimuli, misc
 
-N_TRIALS = 20  # Nombre d'essai
-SQUARE_TIME_1 = 500 # Temps de presentation des carres 1
-CUE_TIME = 100 # Temps de presentation de l'indice
-SQUARE_TIME_1 = 100 # Temps de presentation des carres 2
-TARGET_TIME = 150 # Temps de presentation de la cible
-RESULT_FILE = 'reaction_times.csv'
+N_TRIALS = 20
+MIN_WAIT_TIME = 1000
+MAX_WAIT_TIME = 2000
+MAX_RESPONSE_DELAY = 30000
+
+RECT_SIZE = (150, 150)
+RECT_COLOR = (250, 250, 250)
+RECT_THIN = 3
+RECT_THICK = 10
+RECT_XPOS = 300
+
+STAR_SIZE = (50, 50)
+STAR_WIDTH = 5
+STAR_COLOUR = (250, 250, 250)
+STAR_XPOS = 300
+
+SCREEN_COLOUR = (0, 0, 0)
 
 if(N_TRIALS%2 != 0):
     raise Exception("Veuillez rentrer un nomre d'essai pair !")
 
 exp = design.Experiment(name="PosnerTask", text_size=20)
-#control.set_develop_mode(on=True)
 control.initialize(exp)
 
+Cross = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250)) # Croix de fixation au centre
 
-RectangleLeft      = stimuli.Rectangle((200, 200), colour=(250, 250, 250), line_width=3, position=(250, 0))
-RectangleRight     = stimuli.Rectangle((200, 200), colour=(250, 250, 250), line_width=3, position=(-250, 0))
-RectangleBoldLeft  = stimuli.Rectangle((200, 200), colour=(250, 250, 250), line_width=10, position=(250, 0))
-RectangleBoldRight = stimuli.Rectangle((200, 200), colour=(250, 250, 250), line_width=10, position=(-250, 0))
+def rectangle(thickness, side):
+    width = (RECT_THIN if thickness == 'Thin' else RECT_THICK)
+    pos = RECT_XPOS if side == 'Right' else -RECT_XPOS 
+    return stimuli.Rectangle(RECT_SIZE, 
+                             colour=RECT_COLOR,
+                             line_width = width, 
+                             position=(pos, 0))
 
-StarLeft           = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250),position = (-250, 0))
-CrossRotate        = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250))
-CrossRotate.native_rotate(45.0)
-CrossRotate.plot(StarLeft)
+def star(side):
+    if (side == 'Right') :
+        StarRight    = stimuli.FixCross(size = STAR_SIZE, line_width = STAR_WIDTH, colour = STAR_COLOUR,position = (STAR_XPOS, 0))
+        CrossRotate = stimuli.FixCross(size = STAR_SIZE, line_width = STAR_WIDTH, colour = STAR_COLOUR)
+        CrossRotate.native_rotate(45.0)
+        CrossRotate.plot(StarRight)  
+        return StarRight  
+    else :
+        StarLeft    = stimuli.FixCross(size = STAR_SIZE, line_width = STAR_WIDTH, colour = STAR_COLOUR,position = (-STAR_XPOS, 0))
+        CrossRotate = stimuli.FixCross(size = STAR_SIZE, line_width = STAR_WIDTH, colour = STAR_COLOUR)
+        CrossRotate.native_rotate(45.0)
+        CrossRotate.plot(StarLeft)
+        return StarLeft
 
-StarRight          = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250),position = (250, 0))
-CrossRotate        = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250))
-CrossRotate.native_rotate(45.0)
-CrossRotate.plot(StarRight)
+def screen(rect_thickness_left, rect_thickness_right, cross_or_not, star_side = None) :
+    background_screen = stimuli.BlankScreen(colour = SCREEN_COLOUR)
+    rectangle(rect_thickness_right, 'Right').plot(background_screen)
+    rectangle(rect_thickness_left, 'Left').plot(background_screen)
+    if cross_or_not :
+        Cross.plot(background_screen) 
+    else :
+        star(star_side).plot(background_screen)
+    return background_screen
 
-Cross = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250))
+def trial(congruent_or_not,
+          side_target) :
+    List_screen = design.Trial()
+    List_screen.add_stimulus(screen('Thin', 'Thin', True))
+    if (congruent_or_not == 'Congruent'):
+        if (side_target == 'Right'):
+            List_screen.add_stimulus(screen('Thin', 'Thick', True))
+            List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Right'))
+            List_screen.set_factor("Congruency", 'Congruent') 
+            List_screen.set_factor("Cote", 'Droit')
+        else :
+            List_screen.add_stimulus(screen('Thick', 'Thin', True))
+            List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Left'))
+            List_screen.set_factor("Congruency", "Congruent") 
+            List_screen.set_factor("Cote", "Gauche") 
+    else :
+        if (side_target == 'Right'):
+            List_screen.add_stimulus(screen('Thick', 'Thin', True))
+            List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Right'))
+            List_screen.set_factor("Congruency", "Incongruent") 
+            List_screen.set_factor("Cote", "Right") 
+        else :
+            List_screen.add_stimulus(screen('Thin', 'Thick', True))
+            List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Left'))
+            List_screen.set_factor("Congruency", "Incongruent") 
+            List_screen.set_factor("Cote", "Gauche") 
+    return List_screen
 
-# Creation de differents ecrans que je pourrais alterner dans une liste
-ScreenInit = stimuli.BlankScreen(colour = (0, 0, 0)) # Ecran initial
-Cross.plot(ScreenInit)
-RectangleLeft.plot(ScreenInit)
-RectangleRight.plot(ScreenInit)
+def trial(congruent_or_not,
+          side_target) :
+    List_screen = design.Trial()
+    List_screen.add_stimulus(screen('Thin', 'Thin', True))
+    if (congruent_or_not == 'Congruent'):
+        List_screen.set_factor("Congruency", 'Congruent') 
+        if (side_target == 'Right'):
+            List_screen.add_stimulus(screen('Thin', 'Thick', True))
+            List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Right'))
+            List_screen.set_factor("Congruency", 'Congruent') 
+            List_screen.set_factor("Cote", 'Droit')
+        else :
+            List_screen.add_stimulus(screen('Thick', 'Thin', True))
+            List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Left'))
+            List_screen.set_factor("Congruency", "Congruent") 
+            List_screen.set_factor("Cote", "Gauche") 
+    else :
+        if (side_target == 'Right'):
+            List_screen.add_stimulus(screen('Thick', 'Thin', True))
+            List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Right'))
+            List_screen.set_factor("Congruency", "Incongruent") 
+            List_screen.set_factor("Cote", "Right") 
+        else :
+            List_screen.add_stimulus(screen('Thin', 'Thick', True))
+            List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Left'))
+            List_screen.set_factor("Congruency", "Incongruent") 
+            List_screen.set_factor("Cote", "Gauche") 
+    return List_screen
 
-ScreenCueLeft = stimuli.BlankScreen(colour = (0, 0, 0)) # Ecran avec l'indice a gauche
-Cross.plot(ScreenCueLeft)
-RectangleBoldLeft.plot(ScreenCueLeft)
-RectangleRight.plot(ScreenCueLeft)
+liste_trials = []
+for i in range(N_TRIALS//4) :
+    liste_trials.append(trial('Congruent', 'Left'))
+for j in range(N_TRIALS//4) :
+    liste_trials.append(trial('Congruent', 'Right'))
+for k in range(N_TRIALS//4) :
+    liste_trials.append(trial('Incongruent', 'Left'))
+for l in range(N_TRIALS//4) :
+    liste_trials.append(trial('Incongruent', 'Right'))
+random.shuffle(liste_trials)
+blankscreen = stimuli.BlankScreen()
 
-ScreenCueRight = stimuli.BlankScreen(colour = (0, 0, 0)) # Ecran avec l'indice a droite
-Cross.plot(ScreenCueRight)
-RectangleBoldRight.plot(ScreenCueRight)
-RectangleLeft.plot(ScreenCueRight)
+instructions = stimuli.TextScreen("Instructions",
+    f"""You will partcipate to a attentional studie.
 
-ScreenTargetLeft = stimuli.BlankScreen(colour = (0, 0, 0)) # Ecran avec la cible a gauche
-RectangleRight.plot(ScreenTargetLeft)
-RectangleLeft.plot(ScreenTargetLeft)
-StarLeft.plot(ScreenTargetLeft)
+    You will see a fixation cross in the center of the screen with two squares on the right and the left.
+    
+    One of the two squares will become thick either on the right or left. 
+    You still need to focus on the fixation cross in the middle. Don't look at the bold square
 
-ScreenTargetRight = stimuli.BlankScreen(colour = (0, 0, 0)) # Ecran avec la cible a droite
-RectangleRight.plot(ScreenTargetRight)
-RectangleLeft.plot(ScreenTargetRight)
-StarRight.plot(ScreenTargetRight)
+    Then, a star will appear either in the right square or in the left square. You can look at it.
+    You need to tap as fast as possible on the lettre F if the star appear on the left and J if the star appear on the right.
 
-ListCongruentLeft = []
-ListCongruentLeft.append(ScreenInit)
-ListCongruentLeft.append(ScreenCueLeft)
-ListCongruentLeft.append(ScreenTargetLeft)
+    Their will be {N_TRIALS} trials in total. 
 
-ListCongruentRight = []
-ListCongruentRight.append(ScreenInit)
-ListCongruentRight.append(ScreenCueRight)
-ListCongruentRight.append(ScreenTargetRight)
+    Press the spacebar to start.
+    
+    Thank you for participating in my experiment.""")
 
-ListIncongruentLeft = []
-ListIncongruentLeft.append(ScreenInit)
-ListIncongruentLeft.append(ScreenCueLeft)
-ListIncongruentLeft.append(ScreenTargetRight)
+exp.add_data_variable_names(['Type de trial',
+                            'Touche utilise',
+                            'Quelle est la touche attendu',
+                            'Temps de reaction', 
+                            'Congruent / Incongruent',
+                            'Droit / Gauche',
+                            'Temps d attente entre les trials', 
+                            'Temps d attente entre l ecran initiale et l indice', 
+                            'Temps d attente entre l indice et la cible'])
 
-ListCongruentRight = []
-ListCongruentRight.append(ScreenInit)
-ListCongruentRight.append(ScreenCueRight)
-ListCongruentRight.append(ScreenTargetLeft)
+control.start(skip_ready_screen=True)
+instructions.present()
+exp.keyboard.wait(keys = [misc.constants.K_SPACE])
 
+waiting_time_between_trials = 2000
+waiting_time_between_initial_and_cue = 2000
+waiting_time_between_cue_and_traget = 400
+correct_key = None
 
-def display_instruction(screen, x, y):
-    myfont = pygame.font.SysFont(pygame.font.get_fonts()[0], 32)
-    line1 = myfont.render("You will see two squares appear on your screen around a cross. Please look at the cross.", 1, pygame.Color('white'))
-    line2 = myfont.render("Then, you will see one of the two squares in bold. Please, keep your eyes on the cross.", 1, pygame.Color('white'))
-    line3 = myfont.render("When you see a star appear in one of the two squares, please, press the SPACE BAR as quickly as possible.", 1, pygame.Color('white'))
-    line4 = myfont.render("Press it now to start!", 1, pygame.Color('white'))
-    screen.blit(line1, (x, y))
-    screen.blit(line2, (x, y + 60))
-    pygame.display.flip()
+for trial in liste_trials :
+    compteur_stimuli = 0 # Je cree un compteur des stimuli pour sortir de la boucle pour le troisieme ou le sujet doit appuyer sur une touche
+    stimuli.BlankScreen(colour = (0, 0, 0)).present()
+    exp.clock.wait(waiting_time_between_trials)
+    for stimulus in trial.stimuli :
+        compteur_stimuli = compteur_stimuli + 1
+        stimulus.present()
+        if (compteur_stimuli == 1) :
+            exp.clock.wait(waiting_time_between_initial_and_cue)
+        if (compteur_stimuli == 2) :
+            exp.clock.wait(waiting_time_between_cue_and_traget)
+        if (compteur_stimuli == 3) :
+            key, rt = exp.keyboard.wait(keys = [misc.constants.K_f, misc.constants.K_j], duration = MAX_RESPONSE_DELAY) 
+        if (trial.get_factor('Cote') == 1) :
+            correct_key = "j"
+        if (trial.get_factor('Cote') == 0) :
+            correct_key = "f"
+    exp.data.add([stimulus, 
+                key,
+                correct_key,
+                rt, 
+                trial.get_factor("Congruency"), 
+                trial.get_factor("Cote"), 
+                waiting_time_between_trials, 
+                waiting_time_between_initial_and_cue, 
+                waiting_time_between_cue_and_traget])
 
+#misc.data_preprocessing.write_concatenated_data(
+#    Document/Fac2023-2024/SecondSemestre/Prog/PosnerTask,
+#    exp.data._filename,  # Utilise le fichier de donnees actuel
+#    PosnerTaskData.csv,   # Nom du fichier de sortie
+#)
+
+control.end()
