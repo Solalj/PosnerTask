@@ -3,8 +3,9 @@ import random
 from expyriment import design, control, stimuli, misc
 
 N_TRIALS = 20
-MIN_WAIT_TIME = 1000
-MAX_WAIT_TIME = 2000
+WAITING_TIME_BETWEEN_TRIALS = 2000 
+WAITING_TIME_BETWEEN_INITIAL_AND_CUE = 2000 
+WAITING_TIME_BETWEEN_CUE_AND_TARGET = 200 
 MAX_RESPONSE_DELAY = 30000
 
 RECT_SIZE = (150, 150)
@@ -160,22 +161,20 @@ control.start(skip_ready_screen=True)
 instructions.present()
 exp.keyboard.wait(keys = [misc.constants.K_SPACE])
 
-waiting_time_between_trials = 2000
-waiting_time_between_initial_and_cue = 2000
-waiting_time_between_cue_and_traget = 400
+
 correct_key = None
 
 for trial in liste_trials :
     compteur_stimuli = 0 # Je cree un compteur des stimuli pour sortir de la boucle pour le troisieme ou le sujet doit appuyer sur une touche
     stimuli.BlankScreen(colour = (0, 0, 0)).present()
-    exp.clock.wait(waiting_time_between_trials)
+    exp.clock.wait(WAITING_TIME_BETWEEN_TRIALS)
     for stimulus in trial.stimuli :
         compteur_stimuli = compteur_stimuli + 1
         stimulus.present()
         if (compteur_stimuli == 1) :
-            exp.clock.wait(waiting_time_between_initial_and_cue)
+            exp.clock.wait(WAITING_TIME_BETWEEN_INITIAL_AND_CUE)
         if (compteur_stimuli == 2) :
-            exp.clock.wait(waiting_time_between_cue_and_traget)
+            exp.clock.wait(WAITING_TIME_BETWEEN_CUE_AND_TARGET)
         if (compteur_stimuli == 3) :
             key, rt = exp.keyboard.wait(keys = [misc.constants.K_f, misc.constants.K_j], duration = MAX_RESPONSE_DELAY) 
         if (trial.get_factor('Cote') == 1) :
@@ -188,14 +187,8 @@ for trial in liste_trials :
                 rt, 
                 trial.get_factor("Congruency"), 
                 trial.get_factor("Cote"), 
-                waiting_time_between_trials, 
-                waiting_time_between_initial_and_cue, 
-                waiting_time_between_cue_and_traget])
-
-#misc.data_preprocessing.write_concatenated_data(
-#    Document/Fac2023-2024/SecondSemestre/Prog/PosnerTask,
-#    exp.data._filename,  # Utilise le fichier de donnees actuel
-#    PosnerTaskData.csv,   # Nom du fichier de sortie
-#)
+                WAITING_TIME_BETWEEN_TRIALS, 
+                WAITING_TIME_BETWEEN_INITIAL_AND_CUE, 
+                WAITING_TIME_BETWEEN_CUE_AND_TARGET])
 
 control.end()
