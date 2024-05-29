@@ -66,55 +66,24 @@ def trial(congruent_or_not,
     List_screen = design.Trial()
     List_screen.add_stimulus(screen('Thin', 'Thin', True))
     if (congruent_or_not == 'Congruent'):
-        if (side_target == 'Right'):
-            List_screen.add_stimulus(screen('Thin', 'Thick', True))
-            List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Right'))
-            List_screen.set_factor("Congruency", 'Congruent') 
-            List_screen.set_factor("Cote", 'Droit')
-        else :
-            List_screen.add_stimulus(screen('Thick', 'Thin', True))
-            List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Left'))
-            List_screen.set_factor("Congruency", "Congruent") 
-            List_screen.set_factor("Cote", "Gauche") 
-    else :
-        if (side_target == 'Right'):
-            List_screen.add_stimulus(screen('Thick', 'Thin', True))
-            List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Right'))
-            List_screen.set_factor("Congruency", "Incongruent") 
-            List_screen.set_factor("Cote", "Right") 
-        else :
-            List_screen.add_stimulus(screen('Thin', 'Thick', True))
-            List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Left'))
-            List_screen.set_factor("Congruency", "Incongruent") 
-            List_screen.set_factor("Cote", "Gauche") 
-    return List_screen
-
-def trial(congruent_or_not,
-          side_target) :
-    List_screen = design.Trial()
-    List_screen.add_stimulus(screen('Thin', 'Thin', True))
-    if (congruent_or_not == 'Congruent'):
         List_screen.set_factor("Congruency", 'Congruent') 
         if (side_target == 'Right'):
             List_screen.add_stimulus(screen('Thin', 'Thick', True))
             List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Right'))
-            List_screen.set_factor("Congruency", 'Congruent') 
             List_screen.set_factor("Cote", 'Droit')
         else :
             List_screen.add_stimulus(screen('Thick', 'Thin', True))
             List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Left'))
-            List_screen.set_factor("Congruency", "Congruent") 
             List_screen.set_factor("Cote", "Gauche") 
     else :
+        List_screen.set_factor("Congruency", "Incongruent") 
         if (side_target == 'Right'):
             List_screen.add_stimulus(screen('Thick', 'Thin', True))
             List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Right'))
-            List_screen.set_factor("Congruency", "Incongruent") 
             List_screen.set_factor("Cote", "Right") 
         else :
             List_screen.add_stimulus(screen('Thin', 'Thick', True))
             List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Left'))
-            List_screen.set_factor("Congruency", "Incongruent") 
             List_screen.set_factor("Cote", "Gauche") 
     return List_screen
 
