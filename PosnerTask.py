@@ -2,33 +2,41 @@
 import random
 from expyriment import design, control, stimuli, misc
 
+# Constants relative to the trials
 N_TRIALS = 20
 WAITING_TIME_BETWEEN_TRIALS = 2000 
 WAITING_TIME_BETWEEN_INITIAL_AND_CUE = 2000 
 WAITING_TIME_BETWEEN_CUE_AND_TARGET = 200 
 MAX_RESPONSE_DELAY = 30000
 
+# Constants relative to the square/rectangle
 RECT_SIZE = (150, 150)
 RECT_COLOR = (250, 250, 250)
 RECT_THIN = 3
 RECT_THICK = 10
 RECT_XPOS = 300
 
+# Constants relative to the stars
 STAR_SIZE = (50, 50)
 STAR_WIDTH = 5
 STAR_COLOUR = (250, 250, 250)
 STAR_XPOS = 300
 
+# Colour of the backgroung of the experiment
 SCREEN_COLOUR = (0, 0, 0)
 
+# Check that the number of trials is even, otherwise the experiment will not run
 if(N_TRIALS%2 != 0):
     raise Exception("Veuillez rentrer un nomre d'essai pair !")
 
+# Creation of the experience 
 exp = design.Experiment(name="PosnerTask", text_size=20)
 control.initialize(exp)
 
-Cross = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250)) # Croix de fixation au centre
+# Fixing cross in center of screen
+Cross = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250)) 
 
+# This is the function to create the rectangles/squares
 def rectangle(thickness, side):
     width = (RECT_THIN if thickness == 'Thin' else RECT_THICK)
     pos = RECT_XPOS if side == 'Right' else -RECT_XPOS 
@@ -37,6 +45,7 @@ def rectangle(thickness, side):
                              line_width = width, 
                              position=(pos, 0))
 
+# This is the function to create the stars corresponding to the targets
 def star(side):
     if (side == 'Right') :
         StarRight    = stimuli.FixCross(size = STAR_SIZE, line_width = STAR_WIDTH, colour = STAR_COLOUR,position = (STAR_XPOS, 0))
@@ -51,6 +60,7 @@ def star(side):
         CrossRotate.plot(StarLeft)
         return StarLeft
 
+# This is the function that create a screen that will be added to the trial
 def screen(rect_thickness_left, rect_thickness_right, cross_or_not, star_side = None) :
     background_screen = stimuli.BlankScreen(colour = SCREEN_COLOUR)
     rectangle(rect_thickness_right, 'Right').plot(background_screen)
@@ -61,6 +71,7 @@ def screen(rect_thickness_left, rect_thickness_right, cross_or_not, star_side = 
         star(star_side).plot(background_screen)
     return background_screen
 
+# This is the function of the trials with three screens to create the full trial
 def trial(congruent_or_not,
           side_target) :
     List_screen = design.Trial()
@@ -87,9 +98,10 @@ def trial(congruent_or_not,
             List_screen.set_factor("Cote", "Gauche") 
     return List_screen
 
+# This create the list of the different trials 
 liste_trials = []
 for i in range(N_TRIALS//4) :
-    liste_trials.append(trial('Congruent', 'Left'))
+    liste_trials.append(trial('Congruent', 'Left')) # This create a trial 1/4 of the trials congruent on the right
 for j in range(N_TRIALS//4) :
     liste_trials.append(trial('Congruent', 'Right'))
 for k in range(N_TRIALS//4) :
@@ -99,6 +111,7 @@ for l in range(N_TRIALS//4) :
 random.shuffle(liste_trials)
 blankscreen = stimuli.BlankScreen()
 
+# This is this instructions at the beggining of the experiment
 instructions = stimuli.TextScreen("Instructions",
     f"""You will partcipate to a attentional studie.
 
@@ -130,11 +143,12 @@ control.start(skip_ready_screen=True)
 instructions.present()
 exp.keyboard.wait(keys = [misc.constants.K_SPACE])
 
-
+# Correct_key is the key that the person will need to press, either "f" if it is on the left or "j" if it is on the right
 correct_key = None
 
+# This for loop is where everything is assembled
 for trial in liste_trials :
-    compteur_stimuli = 0 # Je cree un compteur des stimuli pour sortir de la boucle pour le troisieme ou le sujet doit appuyer sur une touche
+    compteur_stimuli = 0 # I create a counter of stimuli to get out of the loop for the third one where the subject has to press a key
     stimuli.BlankScreen(colour = (0, 0, 0)).present()
     exp.clock.wait(WAITING_TIME_BETWEEN_TRIALS)
     for stimulus in trial.stimuli :
