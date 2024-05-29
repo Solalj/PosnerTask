@@ -81,21 +81,21 @@ def trial(congruent_or_not,
         if (side_target == 'Right'):
             List_screen.add_stimulus(screen('Thin', 'Thick', True))
             List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Right'))
-            List_screen.set_factor("Cote", 'Droit')
+            List_screen.set_factor("Side", 'Right')
         else :
             List_screen.add_stimulus(screen('Thick', 'Thin', True))
             List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Left'))
-            List_screen.set_factor("Cote", "Gauche") 
+            List_screen.set_factor("Side", "Left") 
     else :
         List_screen.set_factor("Congruency", "Incongruent") 
         if (side_target == 'Right'):
             List_screen.add_stimulus(screen('Thick', 'Thin', True))
             List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Right'))
-            List_screen.set_factor("Cote", "Right") 
+            List_screen.set_factor("Side", "Right") 
         else :
             List_screen.add_stimulus(screen('Thin', 'Thick', True))
             List_screen.add_stimulus(screen('Thin', 'Thin', False, 'Left'))
-            List_screen.set_factor("Cote", "Gauche") 
+            List_screen.set_factor("Side", "Left") 
     return List_screen
 
 # This create the list of the different trials 
@@ -134,7 +134,7 @@ exp.add_data_variable_names(['Type de trial',
                             'Quelle est la touche attendu',
                             'Temps de reaction', 
                             'Congruent / Incongruent',
-                            'Droit / Gauche',
+                            'Right / Left',
                             'Temps d attente entre les trials', 
                             'Temps d attente entre l ecran initiale et l indice', 
                             'Temps d attente entre l indice et la cible'])
@@ -160,16 +160,16 @@ for trial in liste_trials :
             exp.clock.wait(WAITING_TIME_BETWEEN_CUE_AND_TARGET)
         if (compteur_stimuli == 3) :
             key, rt = exp.keyboard.wait(keys = [misc.constants.K_f, misc.constants.K_j], duration = MAX_RESPONSE_DELAY) 
-        if (trial.get_factor('Cote') == 1) :
+        if (trial.get_factor('Side') == "Right") :
             correct_key = "j"
-        if (trial.get_factor('Cote') == 0) :
+        if (trial.get_factor('Side') == "Left") :
             correct_key = "f"
     exp.data.add([stimulus, 
                 key,
                 correct_key,
                 rt, 
                 trial.get_factor("Congruency"), 
-                trial.get_factor("Cote"), 
+                trial.get_factor("Side"), 
                 WAITING_TIME_BETWEEN_TRIALS, 
                 WAITING_TIME_BETWEEN_INITIAL_AND_CUE, 
                 WAITING_TIME_BETWEEN_CUE_AND_TARGET])
