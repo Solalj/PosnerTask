@@ -149,7 +149,7 @@ correct_key = None
 # This for loop is where everything is assembled
 for trial in liste_trials :
     compteur_stimuli = 0 # I create a counter of stimuli to get out of the loop for the third one where the subject has to press a key
-    stimuli.BlankScreen(colour = (0, 0, 0)).present()
+    stimuli.BlankScreen(colour = SCREEN_COLOUR).present()
     exp.clock.wait(WAITING_TIME_BETWEEN_TRIALS)
     for stimulus in trial.stimuli :
         compteur_stimuli = compteur_stimuli + 1
