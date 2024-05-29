@@ -29,14 +29,14 @@ SCREEN_COLOUR = (0, 0, 0)
 if(N_TRIALS%2 != 0):
     raise Exception("Veuillez rentrer un nomre d'essai pair !")
 
-# Creation of the experience 
+# Creation of the experiment 
 exp = design.Experiment(name="PosnerTask", text_size=20)
 control.initialize(exp)
 
 # Fixing cross in center of screen
 Cross = stimuli.FixCross(size=(50, 50), line_width=5, colour=(250, 250, 250)) 
 
-# This is the function to create the rectangles/squares
+# This is the function to create the rectangles/squares on the right and left
 def rectangle(thickness, side):
     width = (RECT_THIN if thickness == 'Thin' else RECT_THICK)
     pos = RECT_XPOS if side == 'Right' else -RECT_XPOS 
@@ -60,7 +60,7 @@ def star(side):
         CrossRotate.plot(StarLeft)
         return StarLeft
 
-# This is the function that create a screen that will be added to the trial
+# This is the function that create a screen that will be added to the trials
 def screen(rect_thickness_left, rect_thickness_right, cross_or_not, star_side = None) :
     background_screen = stimuli.BlankScreen(colour = SCREEN_COLOUR)
     rectangle(rect_thickness_right, 'Right').plot(background_screen)
@@ -71,7 +71,7 @@ def screen(rect_thickness_left, rect_thickness_right, cross_or_not, star_side = 
         star(star_side).plot(background_screen)
     return background_screen
 
-# This is the function of the trials with three screens to create the full trial
+# This is the function that bind three screens to create the full trial
 def trial(congruent_or_not,
           side_target) :
     List_screen = design.Trial()
@@ -101,7 +101,7 @@ def trial(congruent_or_not,
 # This create the list of the different trials 
 liste_trials = []
 for i in range(N_TRIALS//4) :
-    liste_trials.append(trial('Congruent', 'Left')) # This create a trial 1/4 of the trials congruent on the right
+    liste_trials.append(trial('Congruent', 'Left')) # This create a 1/4 of the trials congruent on the right
 for j in range(N_TRIALS//4) :
     liste_trials.append(trial('Congruent', 'Right'))
 for k in range(N_TRIALS//4) :
